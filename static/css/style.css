@@ -14,8 +14,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f7fa;
-    background-image: url('https://www.transparenttextures.com/patterns/sport.png');
+    background: url('/static/images/chatbot-bg.svg') no-repeat center center fixed;
+    background-size: cover;
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -247,7 +247,8 @@ body {
 
 /* Admin Panel Styles */
 .admin-body {
-    background-color: #f5f7fa;
+    background: url('/static/images/admin-bg.svg') no-repeat center center fixed;
+    background-size: cover;
     padding-bottom: 50px;
 }
 
@@ -323,6 +324,12 @@ body {
     border-radius: 4px;
     font-size: 12px;
     z-index: 1000;
+}
+
+/* Scheduler Styles */
+.scheduler-body {
+    background: url('/static/images/scheduler-bg.svg') no-repeat center center fixed;
+    background-size: cover;
 }
 
 /* Responsive Adjustments */

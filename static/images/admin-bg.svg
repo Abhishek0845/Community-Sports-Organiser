@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="800" viewBox="0 0 1000 800">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a2a6c" />
+      <stop offset="50%" stop-color="#b21f1f" />
+      <stop offset="100%" stop-color="#fdbb2d" />
+    </linearGradient>
+    
+    <!-- Trophy and podium pattern -->
+    <pattern id="trophy-pattern" x="0" y="0" width="300" height="300" patternUnits="userSpaceOnUse">
+      <!-- Trophy -->
+      <path d="M140 30 L160 30 L165 35 Q175 45, 175 60 Q175 80, 160 90 L155 95 Q152 100, 150 105 Q148 100, 145 95 L140 90 Q125 80, 125 60 Q125 45, 135 35 Z" fill="#ffffff" opacity="0.07" />
+      <rect x="145" y="105" width="10" height="15" fill="#ffffff" opacity="0.07" />
+      <rect x="140" y="120" width="20" height="5" rx="2" fill="#ffffff" opacity="0.07" />
+      
+      <!-- Podium -->
+      <rect x="100" y="200" width="40" height="20" fill="#ffffff" opacity="0.06" />
+      <rect x="140" y="180" width="40" height="40" fill="#ffffff" opacity="0.08" />
+      <rect x="180" y="210" width="40" height="10" fill="#ffffff" opacity="0.05" />
+    </pattern>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)" />
+  
+  <!-- Pattern overlay -->
+  <rect width="100%" height="100%" fill="url(#trophy-pattern)" />
+  
+  <!-- Additional decorative elements -->
+  <!-- Stadium silhouette -->
+  <path d="M0 500 Q 500 400, 1000 500 L1000 800 L0 800 Z" fill="#000000" opacity="0.15" />
+  
+  <!-- Sports equipment silhouettes -->
+  <!-- Whistle -->
+  <g opacity="0.08">
+    <ellipse cx="200" cy="100" rx="15" ry="10" fill="#ffffff" />
+    <rect x="215" y="95" width="20" height="10" rx="5" fill="#ffffff" />
+    <circle cx="230" cy="100" r="3" fill="#ffffff" />
+    <path d="M180 100 L170 110" stroke="#ffffff" stroke-width="2" />
+  </g>
+  
+  <!-- Clipboard -->
+  <g opacity="0.08">
+    <rect x="700" y="150" width="80" height="100" rx="5" fill="#ffffff" />
+    <rect x="710" y="170" width="60" height="5" fill="#000000" />
+    <rect x="710" y="185" width="60" height="5" fill="#000000" />
+    <rect x="710" y="200" width="60" height="5" fill="#000000" />
+    <rect x="710" y="215" width="40" height="5" fill="#000000" />
+    <rect x="715" y="130" width="50" height="20" rx="5" fill="#ffffff" />
+  </g>
+  
+  <!-- Stopwatch -->
+  <g opacity="0.08">
+    <circle cx="400" cy="250" r="30" fill="#ffffff" />
+    <circle cx="400" cy="250" r="25" fill="none" stroke="#000000" stroke-width="2" />
+    <rect x="395" y="210" width="10" height="15" rx="5" fill="#ffffff" />
+    <line x1="400" y1="230" x2="400" y2="250" stroke="#000000" stroke-width="2" />
+    <line x1="400" y1="250" x2="420" y2="250" stroke="#000000" stroke-width="2" />
+  </g>
+  
+  <!-- Dynamic curves -->
+  <path d="M0 300 Q 250 350, 500 300 Q 750 250, 1000 300" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.05" />
+  <path d="M0 400 Q 250 350, 500 400 Q 750 450, 1000 400" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.05" />
+</svg>
