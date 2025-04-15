@@ -31,5 +31,16 @@
     "address": "78 Beach Road, Coastal Area",
     "status": "upcoming",
     "description": "Beach volleyball tournament with men's and women's divisions."
+  },
+  {
+    "id": 4,
+    "name": "IPL",
+    "sport": "Cricket",
+    "start_date": "2025-04-08",
+    "end_date": "2025-04-22",
+    "venue": "NA",
+    "address": "",
+    "status": "upcoming",
+    "description": ""
   }
 ]
