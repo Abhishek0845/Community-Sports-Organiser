@@ -29,7 +29,8 @@ data_files = {
         "Football": "11 players per team, 90 minutes match (two 45-minute halves), no offside rule.",
         "Volleyball": "6 players per team, best of 3 sets, rally point scoring system.",
         "Badminton": "Singles or doubles format, 21-point games, best of 3 games.",
-        "Kabaddi": "7 players per team, 40-minute match (two 20-minute halves), raid and defense system."
+        "Kabaddi": "7 players per team, 40-minute match (two 20-minute halves), raid and defense system.",
+        "Kho Kho": "9 players per team, 9-minute innings, chasing and dodging format, players sit in alternate directions."
     },
     "organizers": [
         {
