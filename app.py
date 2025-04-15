@@ -397,6 +397,17 @@ def admin():
     # In a production app, this would have proper authentication
     return render_template('admin.html')
 
+@app.route('/admin-scheduler')
+def admin_scheduler():
+    """Render the admin tournament scheduler interface."""
+    # In a production app, this would have proper authentication
+    return render_template('admin-scheduler.html')
+
+@app.route('/scheduler')
+def scheduler():
+    """Render the user tournament scheduler interface."""
+    return render_template('scheduler.html')
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """API endpoint for chatbot interactions."""
