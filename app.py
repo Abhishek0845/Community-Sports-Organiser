@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 
@@ -54,6 +54,10 @@ for filename, initial_data in data_files.items():
             json.dump(initial_data, f, indent=2)
         logger.info(f"Created initial data file: {file_path}")
 
+# Ensure custom tournaments directory exists
+custom_tournaments_dir = data_dir / "custom_tournaments"
+custom_tournaments_dir.mkdir(exist_ok=True)
+
 # Helper functions to read/write data
 def read_data(filename):
     file_path = data_dir / f"{filename}.json"
@@ -81,7 +85,7 @@ def is_sports_related(query):
     """Check if the query is related to sports tournaments."""
     query = query.lower()
     
-    # Check for sports terms
+    # Check for exact sports names
     for sport in SPORTS:
         if sport in query:
             return True
@@ -90,7 +94,8 @@ def is_sports_related(query):
     tournament_terms = [
         "tournament", "match", "game", "team", "player", "register", 
         "schedule", "venue", "rule", "score", "winner", "organizer", 
-        "contact", "time", "date", "registration", "eligibility"
+        "contact", "time", "date", "registration", "eligibility", "prize",
+        "competition", "league", "championship", "cup", "series", "contest"
     ]
     
     for term in tournament_terms:
@@ -140,7 +145,23 @@ def get_sport_from_query(query):
     for sport in SPORTS:
         if sport in query:
             return sport.capitalize()
+    
+    # Check for sports not in our tournament list
+    other_sports = ["tennis", "basketball", "hockey", "swimming", "golf", "boxing", 
+                    "rugby", "baseball", "cycling", "gymnastics", "running", "martial arts"]
+    for sport in other_sports:
+        if sport in query:
+            return sport.capitalize()
+    
     return None
+
+def is_sport_in_tournaments(sport):
+    """Check if a sport is currently in our tournament list."""
+    if not sport:
+        return False
+    
+    tournaments = read_data("tournaments")
+    return any(t.get("sport", "").lower() == sport.lower() for t in tournaments)
 
 def handle_registration_intent(query):
     """Handle registration-related queries."""
@@ -288,10 +309,27 @@ def handle_general_intent():
 
 def generate_chatbot_response(query):
     """Generate a response to the user query."""
+    # Check for sport-only queries first (like just "basketball" or "tennis")
+    sport = get_sport_from_query(query)
+    
+    # If query is just a sport name
+    if sport and len(query.strip().split()) <= 2:  # Just the sport name or "about sport"
+        if is_sport_in_tournaments(sport):
+            return f"We have {sport} tournaments scheduled. What would you like to know about {sport}? You can ask about schedules, rules, venue, or registration."
+        else:
+            return f"Sorry, we don't have any {sport} tournaments scheduled this year. We currently offer: Cricket, Football, Volleyball, Badminton, and Kabaddi tournaments."
+    
+    # Regular intent classification
     intent = classify_intent(query)
     
+    # Handle off-topic queries
     if intent == "off_topic":
         return "I can only help with community sports tournament-related queries. Please ask about registrations, schedules, results, rules, or contact information for our tournaments."
+    
+    # Handle sport-specific but not in our tournaments
+    if sport and not is_sport_in_tournaments(sport):
+        if any(word in query.lower() for word in ["tournament", "match", "schedule", "when", "where"]):
+            return f"Sorry, we don't have any {sport} tournaments scheduled this year. We currently offer: Cricket, Football, Volleyball, Badminton, and Kabaddi tournaments."
     
     intent_handlers = {
         "registration": handle_registration_intent,
@@ -507,6 +545,171 @@ def add_organizer():
     organizers.append(organizer_data)
     write_data('organizers', organizers)
     return jsonify({'success': True, 'message': 'Organizer added successfully', 'organizer_id': organizer_data['id']})
+
+# Tournament Scheduler Functions
+def generate_tournament_schedule(data):
+    """Generate a schedule for a tournament based on input data."""
+    try:
+        # Extract data
+        tournament_name = data.get('name', 'Custom Tournament')
+        sport = data.get('sport', 'Generic')
+        teams = data.get('teams', [])
+        start_date = datetime.fromisoformat(data.get('start_date', datetime.now().isoformat()[:10]))
+        days = int(data.get('days', 3))
+        matches_per_day = int(data.get('matches_per_day', 3))
+        venue = data.get('venue', 'Community Sports Center')
+        
+        # Need at least 2 teams to create a schedule
+        if len(teams) < 2:
+            return {"error": "At least 2 teams are required to create a schedule"}
+        
+        # Generate unique ID for this tournament
+        tournament_id = f"{sport.lower()}-{int(datetime.now().timestamp())}"
+        
+        # Create tournament info
+        tournament_info = {
+            "id": tournament_id,
+            "name": tournament_name,
+            "sport": sport,
+            "start_date": start_date.isoformat()[:10],
+            "end_date": (start_date + timedelta(days=days-1)).isoformat()[:10],
+            "venue": venue,
+            "teams": teams,
+            "prize_money": data.get('prize_money', ''),
+            "eligibility": data.get('eligibility', ''),
+            "registration_deadline": data.get('registration_deadline', ''),
+            "rules": data.get('rules', ''),
+            "created_at": datetime.now().isoformat()
+        }
+        
+        # Generate matches based on scheduling algorithm
+        all_matches = []
+        match_id = 1
+        
+        # Simple round-robin algorithm
+        if data.get('algorithm', 'round_robin') == 'round_robin':
+            # Create all possible pairs of teams
+            pairs = []
+            for i in range(len(teams)):
+                for j in range(i+1, len(teams)):
+                    pairs.append((teams[i], teams[j]))
+            
+            # Schedule matches across available days
+            current_date = start_date
+            day_num = 1
+            matches_today = 0
+            
+            for team1, team2 in pairs:
+                # If we've reached max matches per day, move to next day
+                if matches_today >= matches_per_day:
+                    day_num += 1
+                    matches_today = 0
+                    current_date = start_date + timedelta(days=day_num-1)
+                    
+                    # If we've used all days, stop scheduling
+                    if day_num > days:
+                        break
+                
+                # Generate match time (9am to 5pm)
+                hour = 9 + (matches_today * 8 // matches_per_day)
+                match_time = f"{hour:02d}:00"
+                
+                match = {
+                    "id": match_id,
+                    "day": day_num,
+                    "date": current_date.isoformat()[:10],
+                    "time": match_time,
+                    "team1": team1,
+                    "team2": team2,
+                    "venue": venue,
+                    "status": "scheduled"
+                }
+                
+                all_matches.append(match)
+                match_id += 1
+                matches_today += 1
+        
+        # Create the complete schedule
+        schedule = {
+            "tournament": tournament_info,
+            "matches": all_matches
+        }
+        
+        # Save schedule to file
+        file_path = custom_tournaments_dir / f"{tournament_id}.json"
+        with open(file_path, 'w') as f:
+            json.dump(schedule, f, indent=2)
+        
+        return schedule
+    except Exception as e:
+        logger.error(f"Error generating tournament schedule: {e}")
+        return {"error": str(e)}
+
+# Tournament Scheduler Routes
+@app.route('/scheduler', methods=['GET'])
+def scheduler_page():
+    """Render the tournament scheduler page."""
+    return render_template('scheduler.html')
+
+@app.route('/api/scheduler/tournaments', methods=['GET'])
+def get_custom_tournaments():
+    """Get all custom tournaments."""
+    tournaments = []
+    for file_path in custom_tournaments_dir.glob('*.json'):
+        try:
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+                if 'tournament' in data:
+                    tournaments.append(data['tournament'])
+        except Exception as e:
+            logger.error(f"Error reading tournament file {file_path}: {e}")
+    
+    return jsonify(tournaments)
+
+@app.route('/api/scheduler/tournaments/<tournament_id>', methods=['GET'])
+def get_custom_tournament(tournament_id):
+    """Get a specific custom tournament."""
+    file_path = custom_tournaments_dir / f"{tournament_id}.json"
+    
+    if not file_path.exists():
+        return jsonify({"error": "Tournament not found"}), 404
+    
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        logger.error(f"Error reading tournament file {file_path}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/scheduler/tournaments', methods=['POST'])
+def create_custom_tournament():
+    """Create a new custom tournament with generated schedule."""
+    try:
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['name', 'sport', 'teams', 'start_date', 'days', 'venue']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
+        
+        # Generate the tournament schedule
+        schedule = generate_tournament_schedule(data)
+        
+        if "error" in schedule:
+            return jsonify(schedule), 400
+        
+        return jsonify({
+            "success": True, 
+            "message": "Tournament schedule created successfully",
+            "tournament_id": schedule["tournament"]["id"]
+        })
+    
+    except Exception as e:
+        logger.error(f"Error creating custom tournament: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
