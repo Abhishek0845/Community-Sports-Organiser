@@ -98,10 +98,20 @@
                                 <option value="Volleyball">Volleyball</option>
                                 <option value="Badminton">Badminton</option>
                                 <option value="Kabaddi">Kabaddi</option>
+                                <option value="Kho Kho">Kho Kho</option>
                                 <option value="Tennis">Tennis</option>
                                 <option value="Basketball">Basketball</option>
                                 <option value="Hockey">Hockey</option>
                                 <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournamentFormat" class="form-label">Tournament Format</label>
+                            <select class="form-control" id="tournamentFormat" required>
+                                <option value="knockout">Knockout</option>
+                                <option value="round-robin">Round Robin</option>
+                                <option value="league">League</option>
+                                <option value="groups">Group Stage + Knockout</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -238,6 +248,7 @@
                 const tournamentData = {
                     name: document.getElementById('tournamentName').value,
                     sport: document.getElementById('sportType').value,
+                    format: document.getElementById('tournamentFormat').value,
                     start_date: document.getElementById('startDate').value,
                     days: parseInt(document.getElementById('days').value),
                     matches_per_day: parseInt(document.getElementById('matchesPerDay').value),
@@ -302,6 +313,7 @@
                     <div class="tournament-info">
                         <h4>${tournament.name}</h4>
                         <p><strong>Sport:</strong> ${tournament.sport}</p>
+                        <p><strong>Format:</strong> ${tournament.format ? tournament.format.charAt(0).toUpperCase() + tournament.format.slice(1) : 'Standard'}</p>
                         <p><strong>Dates:</strong> ${tournament.start_date} to ${tournament.end_date}</p>
                         <p><strong>Venue:</strong> ${tournament.venue}</p>
                         ${tournament.prize_money ? `<p><strong>Prize Money:</strong> ${tournament.prize_money}</p>` : ''}

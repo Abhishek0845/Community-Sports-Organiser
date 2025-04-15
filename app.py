@@ -79,7 +79,7 @@ def write_data(filename, data):
         return False
 
 # Intent classification
-SPORTS = ["cricket", "football", "volleyball", "badminton", "kabaddi"]
+SPORTS = ["cricket", "football", "volleyball", "badminton", "kabaddi", "kho kho"]
 
 def is_sports_related(query):
     """Check if the query is related to sports tournaments."""
@@ -166,14 +166,27 @@ def is_sport_in_tournaments(sport):
 def handle_registration_intent(query):
     """Handle registration-related queries."""
     sport = get_sport_from_query(query)
+    
+    # If no sport is mentioned, ask which sport they want to register for
+    if not sport:
+        sports_list = ', '.join([s.capitalize() for s in SPORTS])
+        return f"Which sport would you like to register for? We currently have tournaments for: {sports_list}."
+    
+    # Check if the sport has tournaments
+    if not is_sport_in_tournaments(sport):
+        return f"Sorry, we currently don't have any {sport} tournaments scheduled. Please check back later or register for our other tournaments: Cricket, Football, Volleyball, Badminton, Kabaddi, or Kho Kho."
+    
+    # If the sport is valid, proceed with registration
     if "team" in query.lower():
-        response = f"To register your {'team for the ' + sport + ' tournament' if sport else 'team'}, please provide:\n"
+        response = f"To register your team for the {sport} tournament, please provide:\n"
         response += "1. Team name\n2. Captain's name\n3. Contact number\n4. Email address\n"
         response += "You can reply with this information or visit our registration desk at the venue."
+        response += "\n\nOnce registered, your details will be forwarded to the concerned authority, and your match schedule will be visible in the upcoming matches section. You'll also be notified via your contact information."
     else:
-        response = f"To register as a player for the {sport + ' tournament' if sport else 'tournament'}, please provide:\n"
+        response = f"To register as a player for the {sport} tournament, please provide:\n"
         response += "1. Your full name\n2. Contact number\n3. Email address\n4. Age\n"
         response += "You can reply with this information or visit our registration desk at the venue."
+        response += "\n\nOnce registered, your details will be forwarded to the concerned authority, and your match schedule will be visible in the upcoming matches section. You'll also be notified via your contact information."
     return response
 
 def handle_schedule_intent(query):
