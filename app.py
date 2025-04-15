@@ -663,6 +663,11 @@ def generate_tournament_schedule(data):
 def scheduler_page():
     """Render the tournament scheduler page."""
     return render_template('scheduler.html')
+    
+@app.route('/admin-scheduler', methods=['GET'])
+def admin_scheduler_page():
+    """Render the admin tournament scheduler page."""
+    return render_template('admin-scheduler.html')
 
 @app.route('/api/scheduler/tournaments', methods=['GET'])
 def get_custom_tournaments():
