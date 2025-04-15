@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+    <div class="container">
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="admin-header d-flex justify-content-between align-items-center">
+                    <h1><i class="fas fa-cogs"></i> Tournament Admin Panel</h1>
+                    <a href="/" class="btn btn-outline-primary"><i class="fas fa-home"></i> Back to Chatbot</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tournaments-tab" data-bs-toggle="tab" data-bs-target="#tournaments" 
+                            type="button" role="tab" aria-controls="tournaments" aria-selected="true">
+                            <i class="fas fa-trophy"></i> Tournaments
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="matches-tab" data-bs-toggle="tab" data-bs-target="#matches" 
+                            type="button" role="tab" aria-controls="matches" aria-selected="false">
+                            <i class="fas fa-gamepad"></i> Matches
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="teams-tab" data-bs-toggle="tab" data-bs-target="#teams" 
+                            type="button" role="tab" aria-controls="teams" aria-selected="false">
+                            <i class="fas fa-users"></i> Teams
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rules-tab" data-bs-toggle="tab" data-bs-target="#rules" 
+                            type="button" role="tab" aria-controls="rules" aria-selected="false">
+                            <i class="fas fa-book"></i> Rules
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="organizers-tab" data-bs-toggle="tab" data-bs-target="#organizers" 
+                            type="button" role="tab" aria-controls="organizers" aria-selected="false">
+                            <i class="fas fa-id-card"></i> Organizers
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="adminTabContent">
+                    <!-- Tournaments Tab -->
+                    <div class="tab-pane fade show active" id="tournaments" role="tabpanel" aria-labelledby="tournaments-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Manage Tournaments</h3>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTournamentModal">
+                                <i class="fas fa-plus"></i> Add Tournament
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Sport</th>
+                                        <th>Dates</th>
+                                        <th>Venue</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tournaments-table">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Loading tournaments...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Matches Tab -->
+                    <div class="tab-pane fade" id="matches" role="tabpanel" aria-labelledby="matches-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Manage Matches</h3>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMatchModal">
+                                <i class="fas fa-plus"></i> Add Match
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Teams</th>
+                                        <th>Sport</th>
+                                        <th>Date & Time</th>
+                                        <th>Venue</th>
+                                        <th>Status</th>
+                                        <th>Result</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matches-table">
+                                    <tr>
+                                        <td colspan="8" class="text-center">Loading matches...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Teams Tab -->
+                    <div class="tab-pane fade" id="teams" role="tabpanel" aria-labelledby="teams-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Registered Teams</h3>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+                                <i class="fas fa-plus"></i> Add Team
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Team Name</th>
+                                        <th>Captain</th>
+                                        <th>Sport</th>
+                                        <th>Contact</th>
+                                        <th>Registration Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teams-table">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Loading teams...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Rules Tab -->
+                    <div class="tab-pane fade" id="rules" role="tabpanel" aria-labelledby="rules-tab">
+                        <h3>Sport Rules</h3>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Edit the rules for each sport below. These rules will be shown to users who ask about game regulations.
+                        </div>
+                        
+                        <form id="rules-form">
+                            <div class="mb-3">
+                                <label for="cricket-rules" class="form-label">Cricket Rules</label>
+                                <textarea class="form-control" id="cricket-rules" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="football-rules" class="form-label">Football Rules</label>
+                                <textarea class="form-control" id="football-rules" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="volleyball-rules" class="form-label">Volleyball Rules</label>
+                                <textarea class="form-control" id="volleyball-rules" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="badminton-rules" class="form-label">Badminton Rules</label>
+                                <textarea class="form-control" id="badminton-rules" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="kabaddi-rules" class="form-label">Kabaddi Rules</label>
+                                <textarea class="form-control" id="kabaddi-rules" rows="3"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Save Rules</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Organizers Tab -->
+                    <div class="tab-pane fade" id="organizers" role="tabpanel" aria-labelledby="organizers-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Tournament Organizers</h3>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addOrganizerModal">
+                                <i class="fas fa-plus"></i> Add Organizer
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="organizers-table">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading organizers...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Tournament Modal -->
+    <div class="modal fade" id="addTournamentModal" tabindex="-1" aria-labelledby="addTournamentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTournamentModalLabel">Add New Tournament</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-tournament-form">
+                        <div class="mb-3">
+                            <label for="tournament-name" class="form-label">Tournament Name</label>
+                            <input type="text" class="form-control" id="tournament-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-sport" class="form-label">Sport</label>
+                            <select class="form-control" id="tournament-sport" required>
+                                <option value="">Select Sport</option>
+                                <option value="Cricket">Cricket</option>
+                                <option value="Football">Football</option>
+                                <option value="Volleyball">Volleyball</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Kabaddi">Kabaddi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-start-date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="tournament-start-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-end-date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="tournament-end-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-venue" class="form-label">Venue</label>
+                            <input type="text" class="form-control" id="tournament-venue" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-address" class="form-label">Address</label>
+                            <textarea class="form-control" id="tournament-address" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-status" class="form-label">Status</label>
+                            <select class="form-control" id="tournament-status" required>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="ongoing">Ongoing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tournament-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="tournament-description" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Tournament</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Match Modal -->
+    <div class="modal fade" id="addMatchModal" tabindex="-1" aria-labelledby="addMatchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMatchModalLabel">Add New Match</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-match-form">
+                        <div class="mb-3">
+                            <label for="match-tournament" class="form-label">Tournament</label>
+                            <select class="form-control" id="match-tournament" required>
+                                <option value="">Select Tournament</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-team1" class="form-label">Team 1</label>
+                            <input type="text" class="form-control" id="match-team1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-team2" class="form-label">Team 2</label>
+                            <input type="text" class="form-control" id="match-team2" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="match-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-time" class="form-label">Time</label>
+                            <input type="time" class="form-control" id="match-time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-venue" class="form-label">Venue</label>
+                            <input type="text" class="form-control" id="match-venue" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-sport" class="form-label">Sport</label>
+                            <select class="form-control" id="match-sport" required>
+                                <option value="">Select Sport</option>
+                                <option value="Cricket">Cricket</option>
+                                <option value="Football">Football</option>
+                                <option value="Volleyball">Volleyball</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Kabaddi">Kabaddi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="match-status" class="form-label">Status</label>
+                            <select class="form-control" id="match-status" required>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="ongoing">Ongoing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 match-result-fields" style="display: none;">
+                            <label for="match-score" class="form-label">Score</label>
+                            <input type="text" class="form-control" id="match-score" placeholder="e.g., 3-2">
+                        </div>
+                        <div class="mb-3 match-result-fields" style="display: none;">
+                            <label for="match-winner" class="form-label">Winner</label>
+                            <input type="text" class="form-control" id="match-winner">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Match</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Team Modal -->
+    <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTeamModalLabel">Add New Team</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-team-form">
+                        <div class="mb-3">
+                            <label for="team-name" class="form-label">Team Name</label>
+                            <input type="text" class="form-control" id="team-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="team-captain" class="form-label">Captain Name</label>
+                            <input type="text" class="form-control" id="team-captain" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="team-sport" class="form-label">Sport</label>
+                            <select class="form-control" id="team-sport" required>
+                                <option value="">Select Sport</option>
+                                <option value="Cricket">Cricket</option>
+                                <option value="Football">Football</option>
+                                <option value="Volleyball">Volleyball</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Kabaddi">Kabaddi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="team-contact" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="team-contact" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="team-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="team-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="team-players" class="form-label">Players (comma-separated)</label>
+                            <textarea class="form-control" id="team-players" rows="3" placeholder="Player1, Player2, Player3..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Team</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Organizer Modal -->
+    <div class="modal fade" id="addOrganizerModal" tabindex="-1" aria-labelledby="addOrganizerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addOrganizerModalLabel">Add New Organizer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-organizer-form">
+                        <div class="mb-3">
+                            <label for="organizer-name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="organizer-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="organizer-role" class="form-label">Role</label>
+                            <input type="text" class="form-control" id="organizer-role" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="organizer-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="organizer-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="organizer-phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="organizer-phone" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Organizer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Update Match Modal (for updating scores) -->
+    <div class="modal fade" id="updateMatchModal" tabindex="-1" aria-labelledby="updateMatchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateMatchModalLabel">Update Match Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="update-match-form">
+                        <input type="hidden" id="update-match-id">
+                        <div class="mb-3">
+                            <label for="update-match-teams" class="form-label">Match</label>
+                            <input type="text" class="form-control" id="update-match-teams" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-match-status" class="form-label">Status</label>
+                            <select class="form-control" id="update-match-status" required>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="ongoing">Ongoing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-match-score" class="form-label">Score</label>
+                            <input type="text" class="form-control" id="update-match-score" placeholder="e.g., 3-2">
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-match-winner" class="form-label">Winner</label>
+                            <input type="text" class="form-control" id="update-match-winner">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Result</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="developer-credit">
+        Developed by Abhishek Singh
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

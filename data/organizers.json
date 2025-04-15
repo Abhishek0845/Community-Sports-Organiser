@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "John Smith",
+    "role": "Tournament Director",
+    "email": "john.smith@example.com",
+    "phone": "+1-555-123-4567"
+  },
+  {
+    "id": 2,
+    "name": "Mary Johnson",
+    "role": "Registration Coordinator",
+    "email": "mary.johnson@example.com",
+    "phone": "+1-555-987-6543"
+  },
+  {
+    "id": 3,
+    "name": "Robert Davis",
+    "role": "Technical Officer",
+    "email": "robert.davis@example.com",
+    "phone": "+1-555-456-7890"
+  },
+  {
+    "id": 4,
+    "name": "Sarah Wilson",
+    "role": "Marketing Manager",
+    "email": "sarah.wilson@example.com",
+    "phone": "+1-555-234-5678"
+  }
+]

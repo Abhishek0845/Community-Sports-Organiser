@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "Royal Strikers",
+    "captain": "John Smith",
+    "contact": "+1-555-123-4567",
+    "email": "royalstrikers@example.com",
+    "sport": "Cricket",
+    "players": ["John Smith", "Mike Johnson", "Steve Davis", "Tom Wilson", "James Brown", "Robert Miller", "David Garcia", "Richard Martinez", "Joseph Rodriguez", "Thomas Anderson", "Charles Jackson"],
+    "registration_date": "2023-05-10T10:15:30"
+  },
+  {
+    "id": 2,
+    "name": "Thunder FC",
+    "captain": "Sarah Johnson",
+    "contact": "+1-555-234-5678",
+    "email": "thunderfc@example.com",
+    "sport": "Football",
+    "players": ["Sarah Johnson", "Emily Davis", "Jessica Wilson", "Ashley Moore", "Michelle Taylor", "Jennifer Thomas", "Amanda White", "Stephanie Lewis", "Nicole Hall", "Melissa Clark", "Rebecca Scott"],
+    "registration_date": "2023-05-12T14:25:45"
+  },
+  {
+    "id": 3,
+    "name": "Beach Spikers",
+    "captain": "Michael Brown",
+    "contact": "+1-555-345-6789",
+    "email": "beachspikers@example.com",
+    "sport": "Volleyball",
+    "players": ["Michael Brown", "Daniel Jones", "William Taylor", "Ryan Hill", "Kevin Allen", "Brian Nelson", "Mark Wright"],
+    "registration_date": "2023-05-15T09:30:20"
+  },
+  {
+    "id": 4,
+    "name": "Shuttlers Club",
+    "captain": "Emma Martinez",
+    "contact": "+1-555-456-7890",
+    "email": "shuttlersclub@example.com",
+    "sport": "Badminton",
+    "players": ["Emma Martinez", "Olivia Johnson", "Sophia Williams", "Isabella Brown", "Mia Davis"],
+    "registration_date": "2023-05-18T16:45:10"
+  },
+  {
+    "id": 5,
+    "name": "Raiders Pro",
+    "captain": "David Wilson",
+    "contact": "+1-555-567-8901",
+    "email": "raiderspro@example.com",
+    "sport": "Kabaddi",
+    "players": ["David Wilson", "James Moore", "Robert Taylor", "Michael Thomas", "William Anderson", "Richard Harris", "Joseph Clark"],
+    "registration_date": "2023-05-20T11:20:35"
+  }
+]

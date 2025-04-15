@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "tournament_id": 1,
+    "team1": "Royal Strikers",
+    "team2": "Crown Kings",
+    "date": "2023-06-18",
+    "time": "14:00",
+    "venue": "City Sports Ground",
+    "sport": "Cricket",
+    "status": "upcoming",
+    "score": "",
+    "winner": ""
+  },
+  {
+    "id": 2,
+    "tournament_id": 2,
+    "team1": "Thunder FC",
+    "team2": "Lightning United",
+    "date": "2023-07-12",
+    "time": "16:30",
+    "venue": "Central Stadium",
+    "sport": "Football",
+    "status": "upcoming",
+    "score": "",
+    "winner": ""
+  },
+  {
+    "id": 3,
+    "tournament_id": 3,
+    "team1": "Beach Spikers",
+    "team2": "Sand Warriors",
+    "date": "2023-06-27",
+    "time": "10:00",
+    "venue": "Beach Sports Arena",
+    "sport": "Volleyball",
+    "status": "upcoming",
+    "score": "",
+    "winner": ""
+  },
+  {
+    "id": 4,
+    "tournament_id": 1,
+    "team1": "Royal Strikers",
+    "team2": "Elite Hitters",
+    "date": "2023-06-25",
+    "time": "15:00",
+    "venue": "City Sports Ground",
+    "sport": "Cricket",
+    "status": "upcoming",
+    "score": "",
+    "winner": ""
+  },
+  {
+    "id": 5,
+    "tournament_id": 2,
+    "team1": "Green Rovers",
+    "team2": "Lightning United",
+    "date": "2023-07-15",
+    "time": "17:30",
+    "venue": "Central Stadium",
+    "sport": "Football",
+    "status": "upcoming",
+    "score": "",
+    "winner": ""
+  }
+]

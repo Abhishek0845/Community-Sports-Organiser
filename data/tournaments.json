@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "name": "Summer Cricket Championship",
+    "sport": "Cricket",
+    "start_date": "2023-06-15",
+    "end_date": "2023-07-30",
+    "venue": "City Sports Ground",
+    "address": "123 Sports Avenue, City Center",
+    "status": "upcoming",
+    "description": "Annual cricket tournament for community teams with T20 format."
+  },
+  {
+    "id": 2,
+    "name": "Community Football League",
+    "sport": "Football",
+    "start_date": "2023-07-10",
+    "end_date": "2023-08-20",
+    "venue": "Central Stadium",
+    "address": "45 Stadium Road, City Center",
+    "status": "upcoming",
+    "description": "Weekend football league with teams from all community areas."
+  },
+  {
+    "id": 3,
+    "name": "Volleyball Tournament 2023",
+    "sport": "Volleyball",
+    "start_date": "2023-06-25",
+    "end_date": "2023-07-15",
+    "venue": "Beach Sports Arena",
+    "address": "78 Beach Road, Coastal Area",
+    "status": "upcoming",
+    "description": "Beach volleyball tournament with men's and women's divisions."
+  }
+]
