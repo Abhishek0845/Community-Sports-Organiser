@@ -5,14 +5,39 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Setup base class for SQLAlchemy models
+class Base(DeclarativeBase):
+    pass
+
+# Initialize database
+db = SQLAlchemy(model_class=Base)
+
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
+
+# Database configuration
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///tourney.db")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Initialize the app with the extension
+db.init_app(app)
+
+# Create tables in the database (if they don't exist)
+with app.app_context():
+    import models
+    db.create_all()
 
 # Ensure data directory exists
 data_dir = Path("data")
