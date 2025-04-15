@@ -1,0 +1,105 @@
+Here's a complete plan for your AI chatbot project: **Community Sports Tournament Organizer**. This will include all necessary **features**, how it should **function**, and how it should **look**.
+
+---
+
+## 🎯 **Project Goal**
+Create an AI chatbot that helps users **organize**, **manage**, and **inquire** about community sports tournaments. It will only respond to queries strictly related to community sports events.
+
+---
+
+## ✅ **Core Features**
+
+### 1. **User Interaction**
+- Register team/player for a tournament
+- Ask for tournament schedule
+- Ask about venue and timings
+- Check eligibility criteria for participation
+- Ask about rules of specific sports
+- Get updates on ongoing tournaments
+- Contact event organizers (name, email, phone)
+
+---
+
+### 2. **Organizer Interaction**
+- Add/edit tournament details (dates, teams, matches)
+- Set rules per sport
+- Update score and standings
+- Announce winners
+
+---
+
+### 3. **Sports Covered**
+- Cricket
+- Football
+- Volleyball
+- Badminton
+- Kabaddi (can vary based on locality)
+
+---
+
+### 4. **Chatbot Constraints**
+- It **must not answer** off-topic queries
+- Replies with “I can only help with community sports tournament-related queries” for anything irrelevant
+- Should be able to handle **FAQs** like:
+  - "When does the football tournament start?"
+  - "Can I register my team online?"
+  - "What’s the prize for the cricket finals?"
+
+---
+
+## 💡 **Technical Stack (Suggested)**
+- **Frontend**: Streamlit, React, or HTML + CSS
+- **Backend**: Python (Flask/FastAPI)
+- **Database**: SQLite or Firebase (for team/player/tournament info)
+- **Chatbot Engine**: 
+  - Rule-based chatbot using `Rasa` or `ChatterBot`
+  - Or LLMs with strict **intent filters** (via Langchain or transformers + custom rules)
+- **Deployment**: Localhost or Streamlit Share/Render/Heroku
+
+---
+
+## 💬 **Chatbot UI Design**
+- **Left Pane**: Chat window
+- **Right Pane** (optional):
+  - Upcoming matches
+  - Register/Login buttons
+  - Announcements section
+- **Style**: Clean, sporty theme with team logos, vibrant buttons, and responsive design
+
+---
+
+## 🔁 **Sample User Flow**
+
+### 1. User: “I want to register my football team”
+> Chatbot: “Great! Please provide your team name, captain’s name, and contact number.”
+
+### 2. User: “When is the next volleyball match?”
+> Chatbot: “The next volleyball match is scheduled for April 21st at 4:30 PM at XYZ Ground.”
+
+### 3. User: “Who won the last cricket match?”
+> Chatbot: “Team Thunder won the last match with 6 wickets against Team Blaze.”
+
+---
+
+## 🛑 **Handling Off-topic Queries**
+- User: “What’s the weather today?”
+> Chatbot: “Sorry, I can only assist with community sports tournament-related questions.”
+
+---
+
+## 🗃️ **Data to Prepare**
+- List of tournaments, schedules, and venues
+- Rules and registration info for each sport
+- Organizer contact info
+- Real-time data input panel (for admins)
+
+---
+
+## 🛠️ **Admin Panel (Optional)**
+Create a simple admin interface where:
+- Organizers can update match results, team entries, and other tournament details
+- Only accessible via password
+
+---
+
+Want me to generate the **base Python code + file structure + UI sketch** for you too?
