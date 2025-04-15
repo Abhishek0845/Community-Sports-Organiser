@@ -154,13 +154,7 @@
                     
                     <!-- Rules Tab -->
                     <div class="tab-pane fade" id="rules" role="tabpanel" aria-labelledby="rules-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3>Sport Rules</h3>
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addNewGameRuleModal">
-                                <i class="fas fa-plus"></i> Add New Game Rules
-                            </button>
-                        </div>
-                        
+                        <h3>Sport Rules</h3>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i> Edit the rules for each sport below. These rules will be shown to users who ask about game regulations.
                         </div>
@@ -189,15 +183,6 @@
                             <div class="mb-3">
                                 <label for="kabaddi-rules" class="form-label">Kabaddi Rules</label>
                                 <textarea class="form-control" id="kabaddi-rules" rows="3"></textarea>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="kho-kho-rules" class="form-label">Kho Kho Rules</label>
-                                <textarea class="form-control" id="kho-kho-rules" rows="3"></textarea>
-                            </div>
-                            
-                            <div id="additional-sport-rules">
-                                <!-- Additional sport rules will be added here dynamically -->
                             </div>
                             
                             <button type="submit" class="btn btn-primary">Save Rules</button>
@@ -345,7 +330,6 @@
                                 <option value="Volleyball">Volleyball</option>
                                 <option value="Badminton">Badminton</option>
                                 <option value="Kabaddi">Kabaddi</option>
-                                <option value="Kho Kho">Kho Kho</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -398,7 +382,6 @@
                                 <option value="Volleyball">Volleyball</option>
                                 <option value="Badminton">Badminton</option>
                                 <option value="Kabaddi">Kabaddi</option>
-                                <option value="Kho Kho">Kho Kho</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -491,39 +474,6 @@
         </div>
     </div>
     
-    <!-- Add New Game Rule Modal -->
-    <div class="modal fade" id="addNewGameRuleModal" tabindex="-1" aria-labelledby="addNewGameRuleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addNewGameRuleModalLabel">Add New Game Rules</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-game-rule-form">
-                        <div class="mb-3">
-                            <label for="new-game-name" class="form-label">Sport Name</label>
-                            <input type="text" class="form-control" id="new-game-name" required placeholder="e.g., Tennis, Basketball">
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-game-icon" class="form-label">Sport Icon URL (optional)</label>
-                            <input type="text" class="form-control" id="new-game-icon" placeholder="URL to sport icon image">
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-game-min-players" class="form-label">Minimum Players Required</label>
-                            <input type="number" class="form-control" id="new-game-min-players" min="1" value="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-game-rules" class="form-label">Game Rules</label>
-                            <textarea class="form-control" id="new-game-rules" rows="5" required placeholder="Enter detailed rules for this sport..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Sport Rules</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="developer-credit">
         Developed by Abhishek Singh
     </div>

@@ -3,37 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament Scheduler - Admin</title>
+    <title>Admin Tournament Scheduler</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-scheduler-body {
+            background: url('/static/images/admin-bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .admin-scheduler-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin: 20px auto;
+            max-width: 1400px;
+        }
+        .header-bar {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px 8px 0 0;
+            margin: -25px -25px 20px -25px;
+        }
+        .section-title {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .tournament-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .tournament-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .tournament-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .tournament-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        .tournament-actions .btn {
+            margin-left: 5px;
+        }
+        .match-list {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .match-item {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background-color: white;
+            border-left: 4px solid #6c757d;
+            transition: all 0.2s ease;
+        }
+        .match-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: #007bff;
+        }
+        .match-item.completed {
+            border-left-color: #28a745;
+        }
+        .match-item.upcoming {
+            border-left-color: #007bff;
+        }
+        .match-item.cancelled {
+            border-left-color: #dc3545;
+        }
+        .match-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .teams {
+            font-weight: 600;
+        }
+        .match-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: normal;
+        }
+        .vs-text {
+            color: #6c757d;
+            margin: 0 8px;
+        }
+        .quick-add-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .add-match-form .form-group {
+            margin-bottom: 15px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row > div {
+            flex-grow: 1;
+        }
+    </style>
 </head>
-<body class="admin-body">
-    <div class="container py-4">
-        <div class="admin-header text-center">
-            <h1>Tournament Scheduler <span class="badge bg-primary">Admin</span></h1>
-            <p class="lead">Create and manage tournament schedules</p>
-            <div class="mb-4">
-                <a href="/admin" class="btn btn-outline-primary">Back to Admin</a>
-                <a href="/scheduler" class="btn btn-outline-info">User Scheduler View</a>
+<body class="admin-scheduler-body">
+    <div class="admin-scheduler-container">
+        <div class="header-bar d-flex justify-content-between align-items-center">
+            <h1><i class="fas fa-calendar-alt"></i> Admin Tournament Scheduler</h1>
+            <div>
+                <a href="/admin" class="btn btn-outline-light me-2"><i class="fas fa-cogs"></i> Admin Panel</a>
+                <a href="/" class="btn btn-outline-light"><i class="fas fa-home"></i> Chatbot Home</a>
             </div>
         </div>
-
+        
         <div class="row">
-            <div class="col-lg-8 offset-lg-2">
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="card-title mb-0">Create New Tournament</h3>
-                    </div>
-                    <div class="card-body">
-                        <form id="create-tournament-form">
-                            <div class="mb-3">
-                                <label for="tournament-name" class="form-label">Tournament Name</label>
-                                <input type="text" class="form-control" id="tournament-name" required>
+            <!-- Tournaments List -->
+            <div class="col-md-4">
+                <div class="section-title">
+                    <h3><i class="fas fa-trophy"></i> Tournaments</h3>
+                </div>
+                <div id="tournamentsList">
+                    <p class="text-center text-muted">Loading tournaments...</p>
+                </div>
+            </div>
+            
+            <!-- Matches Management -->
+            <div class="col-md-8">
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <h3><i class="fas fa-clipboard-list"></i> Match Management</h3>
+                    <button class="btn btn-primary" id="showQuickAddForm">
+                        <i class="fas fa-plus"></i> Add New Match
+                    </button>
+                </div>
+                
+                <!-- Quick Add Match Form -->
+                <div class="quick-add-container" id="quickAddContainer" style="display: none;">
+                    <h4 class="mb-3">Add New Match</h4>
+                    <form id="addMatchForm" class="add-match-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tournamentSelect">Tournament</label>
+                                <select class="form-control" id="tournamentSelect" required>
+                                    <option value="">Select Tournament</option>
+                                </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="tournament-sport" class="form-label">Sport</label>
-                                <select class="form-control" id="tournament-sport" required>
+                            <div class="form-group">
+                                <label for="sportSelect">Sport</label>
+                                <select class="form-control" id="sportSelect" required>
                                     <option value="">Select Sport</option>
                                     <option value="Cricket">Cricket</option>
                                     <option value="Football">Football</option>
@@ -41,128 +179,481 @@
                                     <option value="Badminton">Badminton</option>
                                     <option value="Kabaddi">Kabaddi</option>
                                     <option value="Kho Kho">Kho Kho</option>
+                                    <option value="Tennis">Tennis</option>
+                                    <option value="Basketball">Basketball</option>
+                                    <option value="Hockey">Hockey</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="tournament-format" class="form-label">Tournament Format</label>
-                                <select class="form-control" id="tournament-format" required>
-                                    <option value="knockout">Knockout</option>
-                                    <option value="round-robin">Round Robin</option>
-                                    <option value="league">League</option>
-                                    <option value="groups">Groups + Knockout</option>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="team1Input">Team 1</label>
+                                <input type="text" class="form-control" id="team1Input" placeholder="Enter team name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="team2Input">Team 2</label>
+                                <input type="text" class="form-control" id="team2Input" placeholder="Enter team name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dateInput">Date</label>
+                                <input type="date" class="form-control" id="dateInput" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="timeInput">Time</label>
+                                <input type="time" class="form-control" id="timeInput" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="venueInput">Venue</label>
+                                <input type="text" class="form-control" id="venueInput" placeholder="Enter venue" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="statusSelect">Status</label>
+                                <select class="form-control" id="statusSelect">
+                                    <option value="upcoming">Upcoming</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="tournament-start-date" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="tournament-start-date" required>
+                            <div class="form-group">
+                                <label for="scoreInput">Score (if completed)</label>
+                                <input type="text" class="form-control" id="scoreInput" placeholder="e.g., 3-1">
                             </div>
-                            <div class="mb-3">
-                                <label for="tournament-end-date" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="tournament-end-date" required>
+                            <div class="form-group">
+                                <label for="winnerInput">Winner (if completed)</label>
+                                <input type="text" class="form-control" id="winnerInput" placeholder="Enter winner team">
                             </div>
-                            <div class="mb-3">
-                                <label for="tournament-venue" class="form-label">Venue</label>
-                                <input type="text" class="form-control" id="tournament-venue" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tournament-address" class="form-label">Address</label>
-                                <textarea class="form-control" id="tournament-address" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tournament-max-teams" class="form-label">Maximum Teams</label>
-                                <input type="number" class="form-control" id="tournament-max-teams" value="8" min="2" max="32" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tournament-description" class="form-label">Description</label>
-                                <textarea class="form-control" id="tournament-description" rows="3"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tournament-registration-deadline" class="form-label">Registration Deadline</label>
-                                <input type="date" class="form-control" id="tournament-registration-deadline">
-                            </div>
-                            <div class="mb-3">
-                                <label for="tournament-eligibility" class="form-label">Eligibility Criteria</label>
-                                <textarea class="form-control" id="tournament-eligibility" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tournament-prize" class="form-label">Prize Money</label>
-                                <input type="text" class="form-control" id="tournament-prize" placeholder="e.g., $1000">
-                            </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="tournament-notify" checked>
-                                <label class="form-check-label" for="tournament-notify">
-                                    Send notifications about this tournament
-                                </label>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Create Tournament</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h3 class="card-title mb-0">Tournament Registrations</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="registration-filter mb-3">
-                            <select class="form-select" id="registration-tournament-filter">
-                                <option value="">All Tournaments</option>
-                                <!-- Will be populated dynamically -->
-                            </select>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="registrations-table">
-                                <thead>
-                                    <tr>
-                                        <th>Tournament</th>
-                                        <th>Team</th>
-                                        <th>Registration Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="registrations-list">
-                                    <!-- Will be populated dynamically -->
-                                </tbody>
-                            </table>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Match
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelAddMatch">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Approve Registration Modal -->
-    <div class="modal fade" id="approveRegistrationModal" tabindex="-1" aria-labelledby="approveRegistrationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="approveRegistrationModalLabel">Approve Team Registration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to approve this team for the tournament?</p>
-                    <div id="team-registration-details">
-                        <!-- Will be populated dynamically -->
-                    </div>
-                    <form id="approve-registration-form">
-                        <input type="hidden" id="registration-id">
-                        <div class="mb-3">
-                            <label for="registration-notes" class="form-label">Notes (optional)</label>
-                            <textarea class="form-control" id="registration-notes" rows="2"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success">Approve Registration</button>
                     </form>
                 </div>
+                
+                <!-- Matches List -->
+                <div id="matchesContainer">
+                    <p class="text-center text-muted">Select a tournament to view matches or add a new match using the button above.</p>
+                </div>
             </div>
         </div>
     </div>
-
+    
     <div class="developer-credit">
         Developed by Abhishek Singh
     </div>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/admin-scheduler.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date to today
+            const today = new Date();
+            document.getElementById('dateInput').valueAsDate = today;
+            
+            // Quick Add Form Toggle
+            const showQuickAddBtn = document.getElementById('showQuickAddForm');
+            const quickAddContainer = document.getElementById('quickAddContainer');
+            const cancelAddBtn = document.getElementById('cancelAddMatch');
+            
+            showQuickAddBtn.addEventListener('click', function() {
+                quickAddContainer.style.display = 'block';
+                showQuickAddBtn.style.display = 'none';
+            });
+            
+            cancelAddBtn.addEventListener('click', function() {
+                quickAddContainer.style.display = 'none';
+                showQuickAddBtn.style.display = 'block';
+            });
+            
+            // Load Tournaments
+            fetch('/api/tournaments')
+                .then(response => response.json())
+                .then(tournaments => {
+                    displayTournaments(tournaments);
+                    populateTournamentDropdown(tournaments);
+                })
+                .catch(error => {
+                    console.error('Error fetching tournaments:', error);
+                    document.getElementById('tournamentsList').innerHTML = '<p class="text-danger">Error loading tournaments</p>';
+                });
+            
+            // Load Matches
+            fetch('/api/matches')
+                .then(response => response.json())
+                .then(matches => {
+                    // Store matches data for later use
+                    window.allMatches = matches;
+                })
+                .catch(error => {
+                    console.error('Error fetching matches:', error);
+                });
+            
+            // Handle Match Form Submission
+            const addMatchForm = document.getElementById('addMatchForm');
+            addMatchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const matchData = {
+                    tournament_id: parseInt(document.getElementById('tournamentSelect').value),
+                    sport: document.getElementById('sportSelect').value,
+                    team1: document.getElementById('team1Input').value,
+                    team2: document.getElementById('team2Input').value,
+                    date: document.getElementById('dateInput').value,
+                    time: document.getElementById('timeInput').value,
+                    venue: document.getElementById('venueInput').value,
+                    status: document.getElementById('statusSelect').value,
+                    score: document.getElementById('scoreInput').value,
+                    winner: document.getElementById('winnerInput').value
+                };
+                
+                // Send request to add match
+                fetch('/api/matches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(matchData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    if (data.success) {
+                        alert('Match added successfully!');
+                        // Reset form
+                        addMatchForm.reset();
+                        document.getElementById('dateInput').valueAsDate = today;
+                        
+                        // Hide form
+                        quickAddContainer.style.display = 'none';
+                        showQuickAddBtn.style.display = 'block';
+                        
+                        // Refresh matches if a tournament is selected
+                        const selectedTournament = document.getElementById('tournamentSelect').value;
+                        if (selectedTournament) {
+                            fetch('/api/matches')
+                                .then(response => response.json())
+                                .then(matches => {
+                                    window.allMatches = matches;
+                                    displayMatchesForTournament(selectedTournament);
+                                });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error adding match. Please try again.');
+                });
+            });
+            
+            // Display Tournaments
+            function displayTournaments(tournaments) {
+                const tournamentsList = document.getElementById('tournamentsList');
+                
+                if (!tournaments || tournaments.length === 0) {
+                    tournamentsList.innerHTML = '<p class="text-center text-muted">No tournaments found. Create one in the admin panel.</p>';
+                    return;
+                }
+                
+                let tournamentHTML = '';
+                
+                tournaments.forEach(tournament => {
+                    tournamentHTML += `
+                        <div class="tournament-card">
+                            <div class="tournament-header">
+                                <h5 class="tournament-title">${tournament.name}</h5>
+                                <div class="tournament-actions">
+                                    <button class="btn btn-sm btn-outline-primary view-matches" data-id="${tournament.id}">
+                                        <i class="fas fa-eye"></i> Matches
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tournament-info">
+                                <p class="mb-1"><i class="fas fa-futbol"></i> ${tournament.sport}</p>
+                                <p class="mb-1"><i class="fas fa-calendar-day"></i> ${tournament.start_date} to ${tournament.end_date}</p>
+                                <p class="mb-0"><i class="fas fa-map-marker-alt"></i> ${tournament.venue}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                tournamentsList.innerHTML = tournamentHTML;
+                
+                // Add event listeners to view matches buttons
+                document.querySelectorAll('.view-matches').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const tournamentId = this.getAttribute('data-id');
+                        displayMatchesForTournament(tournamentId);
+                        
+                        // Also update the tournament dropdown in the form
+                        document.getElementById('tournamentSelect').value = tournamentId;
+                    });
+                });
+            }
+            
+            // Populate Tournament Dropdown
+            function populateTournamentDropdown(tournaments) {
+                const tournamentSelect = document.getElementById('tournamentSelect');
+                
+                tournaments.forEach(tournament => {
+                    const option = document.createElement('option');
+                    option.value = tournament.id;
+                    option.textContent = `${tournament.name} (${tournament.sport})`;
+                    tournamentSelect.appendChild(option);
+                });
+            }
+            
+            // Display Matches for Tournament
+            function displayMatchesForTournament(tournamentId) {
+                const matchesContainer = document.getElementById('matchesContainer');
+                
+                if (!window.allMatches) {
+                    matchesContainer.innerHTML = '<p class="text-center text-muted">Loading matches...</p>';
+                    return;
+                }
+                
+                const tournamentMatches = window.allMatches.filter(match => match.tournament_id == tournamentId);
+                
+                if (tournamentMatches.length === 0) {
+                    matchesContainer.innerHTML = '<p class="text-center text-muted">No matches found for this tournament. Use the "Add New Match" button to create one.</p>';
+                    return;
+                }
+                
+                // Group matches by status
+                const upcomingMatches = tournamentMatches.filter(match => match.status === 'upcoming');
+                const completedMatches = tournamentMatches.filter(match => match.status === 'completed');
+                const cancelledMatches = tournamentMatches.filter(match => match.status === 'cancelled');
+                
+                let matchesHTML = '';
+                
+                // Upcoming Matches
+                if (upcomingMatches.length > 0) {
+                    matchesHTML += '<h4 class="mt-4 mb-3"><span class="badge bg-primary">Upcoming Matches</span></h4>';
+                    matchesHTML += '<div class="match-list">';
+                    
+                    upcomingMatches.forEach(match => {
+                        matchesHTML += `
+                            <div class="match-item upcoming">
+                                <div class="match-details">
+                                    <div>
+                                        <span class="teams">${match.team1}</span>
+                                        <span class="vs-text">vs</span>
+                                        <span class="teams">${match.team2}</span>
+                                    </div>
+                                    <span class="badge bg-primary badge-status">Upcoming</span>
+                                </div>
+                                <div class="match-meta mt-2">
+                                    <span><i class="far fa-calendar-alt"></i> ${match.date}</span> | 
+                                    <span><i class="far fa-clock"></i> ${match.time}</span> | 
+                                    <span><i class="fas fa-map-marker-alt"></i> ${match.venue}</span>
+                                </div>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button class="btn btn-sm btn-outline-success me-2 update-match" data-id="${match.id}" data-action="complete">
+                                        <i class="fas fa-check"></i> Mark Complete
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger me-2 update-match" data-id="${match.id}" data-action="cancel">
+                                        <i class="fas fa-ban"></i> Cancel
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary edit-match" data-id="${match.id}">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    matchesHTML += '</div>';
+                }
+                
+                // Completed Matches
+                if (completedMatches.length > 0) {
+                    matchesHTML += '<h4 class="mt-4 mb-3"><span class="badge bg-success">Completed Matches</span></h4>';
+                    matchesHTML += '<div class="match-list">';
+                    
+                    completedMatches.forEach(match => {
+                        matchesHTML += `
+                            <div class="match-item completed">
+                                <div class="match-details">
+                                    <div>
+                                        <span class="teams">${match.team1}</span>
+                                        <span class="vs-text">vs</span>
+                                        <span class="teams">${match.team2}</span>
+                                        <span class="ms-2 text-success fw-bold">(${match.score || 'No score'})</span>
+                                    </div>
+                                    <span class="badge bg-success badge-status">Completed</span>
+                                </div>
+                                <div class="match-meta mt-2">
+                                    <span><i class="far fa-calendar-alt"></i> ${match.date}</span> | 
+                                    <span><i class="far fa-clock"></i> ${match.time}</span> | 
+                                    <span><i class="fas fa-map-marker-alt"></i> ${match.venue}</span> |
+                                    <span><i class="fas fa-trophy"></i> Winner: ${match.winner || 'Not specified'}</span>
+                                </div>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button class="btn btn-sm btn-outline-secondary edit-match" data-id="${match.id}">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    matchesHTML += '</div>';
+                }
+                
+                // Cancelled Matches
+                if (cancelledMatches.length > 0) {
+                    matchesHTML += '<h4 class="mt-4 mb-3"><span class="badge bg-danger">Cancelled Matches</span></h4>';
+                    matchesHTML += '<div class="match-list">';
+                    
+                    cancelledMatches.forEach(match => {
+                        matchesHTML += `
+                            <div class="match-item cancelled">
+                                <div class="match-details">
+                                    <div>
+                                        <span class="teams">${match.team1}</span>
+                                        <span class="vs-text">vs</span>
+                                        <span class="teams">${match.team2}</span>
+                                    </div>
+                                    <span class="badge bg-danger badge-status">Cancelled</span>
+                                </div>
+                                <div class="match-meta mt-2">
+                                    <span><i class="far fa-calendar-alt"></i> ${match.date}</span> | 
+                                    <span><i class="far fa-clock"></i> ${match.time}</span> | 
+                                    <span><i class="fas fa-map-marker-alt"></i> ${match.venue}</span>
+                                </div>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button class="btn btn-sm btn-outline-secondary edit-match" data-id="${match.id}">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    matchesHTML += '</div>';
+                }
+                
+                matchesContainer.innerHTML = matchesHTML;
+                
+                // Add event listeners for match actions
+                document.querySelectorAll('.update-match').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const matchId = this.getAttribute('data-id');
+                        const action = this.getAttribute('data-action');
+                        
+                        if (action === 'complete') {
+                            // Get match details to pre-fill the form
+                            const match = window.allMatches.find(m => m.id == matchId);
+                            
+                            // Show the form for completing the match
+                            quickAddContainer.style.display = 'block';
+                            showQuickAddBtn.style.display = 'none';
+                            
+                            // Pre-fill form with match details
+                            document.getElementById('tournamentSelect').value = match.tournament_id;
+                            document.getElementById('sportSelect').value = match.sport;
+                            document.getElementById('team1Input').value = match.team1;
+                            document.getElementById('team2Input').value = match.team2;
+                            document.getElementById('dateInput').value = match.date;
+                            document.getElementById('timeInput').value = match.time;
+                            document.getElementById('venueInput').value = match.venue;
+                            document.getElementById('statusSelect').value = 'completed';
+                            
+                            // Focus on the score input
+                            document.getElementById('scoreInput').focus();
+                            
+                            // Set up form to update rather than create
+                            addMatchForm.setAttribute('data-mode', 'update');
+                            addMatchForm.setAttribute('data-id', matchId);
+                        } else if (action === 'cancel') {
+                            if (confirm('Are you sure you want to cancel this match?')) {
+                                updateMatchStatus(matchId, 'cancelled');
+                            }
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.edit-match').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const matchId = this.getAttribute('data-id');
+                        const match = window.allMatches.find(m => m.id == matchId);
+                        
+                        // Show the form
+                        quickAddContainer.style.display = 'block';
+                        showQuickAddBtn.style.display = 'none';
+                        
+                        // Pre-fill form with match details
+                        document.getElementById('tournamentSelect').value = match.tournament_id;
+                        document.getElementById('sportSelect').value = match.sport;
+                        document.getElementById('team1Input').value = match.team1;
+                        document.getElementById('team2Input').value = match.team2;
+                        document.getElementById('dateInput').value = match.date;
+                        document.getElementById('timeInput').value = match.time;
+                        document.getElementById('venueInput').value = match.venue;
+                        document.getElementById('statusSelect').value = match.status;
+                        document.getElementById('scoreInput').value = match.score || '';
+                        document.getElementById('winnerInput').value = match.winner || '';
+                        
+                        // Set up form to update rather than create
+                        addMatchForm.setAttribute('data-mode', 'update');
+                        addMatchForm.setAttribute('data-id', matchId);
+                    });
+                });
+            }
+            
+            // Update Match Status
+            function updateMatchStatus(matchId, status) {
+                fetch(`/api/matches/${matchId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    if (data.success) {
+                        alert('Match updated successfully!');
+                        
+                        // Refresh matches
+                        fetch('/api/matches')
+                            .then(response => response.json())
+                            .then(matches => {
+                                window.allMatches = matches;
+                                const selectedTournament = document.getElementById('tournamentSelect').value;
+                                if (selectedTournament) {
+                                    displayMatchesForTournament(selectedTournament);
+                                }
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating match. Please try again.');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
