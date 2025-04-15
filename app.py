@@ -433,6 +433,93 @@ def register():
         return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
     
     if data['type'] == 'team':
+        # Add team to database
+        team_id = None
+        try:
+            # Check if sport is valid
+            if 'sport' in data and data['sport']:
+                sport = models.Sport.query.filter_by(name=data['sport']).first()
+                if not sport:
+                    return jsonify({'error': f'Sport {data["sport"]} not found'}), 400
+                
+                # Check if players meet minimum requirements
+                players_list = []
+                if 'players' in data and data['players']:
+                    if isinstance(data['players'], str):
+                        players_list = [p.strip() for p in data['players'].split(',') if p.strip()]
+                    elif isinstance(data['players'], list):
+                        players_list = data['players']
+                    
+                    if len(players_list) < sport.min_players:
+                        return jsonify({
+                            'error': f'Team must have at least {sport.min_players} players for {data["sport"]}',
+                            'min_players': sport.min_players,
+                            'current_players': len(players_list)
+                        }), 400
+                
+                # Check if team already exists
+                existing_team = models.Team.query.filter_by(name=data['name']).first()
+                if existing_team:
+                    return jsonify({'error': 'Team already registered', 'team_id': existing_team.id}), 400
+                
+                # Create new team
+                team = models.Team(
+                    name=data['name'],
+                    captain=data.get('captain', ''),
+                    contact=data['contact'],
+                    email=data['email'],
+                    sport_id=sport.id if sport else None,
+                    registration_date=datetime.now(),
+                    approved=False  # Require admin approval
+                )
+                db.session.add(team)
+                db.session.commit()
+                team_id = team.id
+                
+                # Add players if provided
+                for player_name in players_list:
+                    player = models.Player(
+                        name=player_name,
+                        team_id=team.id
+                    )
+                    db.session.add(player)
+                
+                db.session.commit()
+                
+                # Register for tournament if specified
+                if 'tournament_id' in data and data['tournament_id']:
+                    tournament = models.Tournament.query.get(data['tournament_id'])
+                    if tournament:
+                        # Check if already registered
+                        existing_reg = models.TournamentRegistration.query.filter_by(
+                            tournament_id=tournament.id, 
+                            team_id=team.id
+                        ).first()
+                        
+                        if not existing_reg:
+                            reg = models.TournamentRegistration(
+                                tournament_id=tournament.id,
+                                team_id=team.id,
+                                registration_date=datetime.now(),
+                                status='pending'
+                            )
+                            db.session.add(reg)
+                            db.session.commit()
+                
+                return jsonify({
+                    'success': True, 
+                    'message': 'Team registered successfully', 
+                    'team_id': team.id
+                })
+            else:
+                return jsonify({'error': 'Sport is required for team registration'}), 400
+                
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error registering team: {e}")
+            # Continue to legacy JSON registration below
+        
+        # Legacy JSON-based registration (fallback)
         teams = read_data('teams')
         # Check if team already exists
         if any(team['name'] == data['name'] for team in teams):
@@ -564,6 +651,65 @@ def update_rules():
         
     write_data('rules', rules)
     return jsonify({'success': True, 'message': 'Rules updated successfully'})
+
+@app.route('/api/rules/add', methods=['POST'])
+def add_game_rule():
+    """API endpoint to add a new sport rule."""
+    data = request.json
+    
+    # Validate required fields
+    required_fields = ['name', 'rules', 'min_players']
+    missing_fields = [field for field in required_fields if field not in data]
+    
+    if missing_fields:
+        return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+    
+    # Get existing rules
+    rules = read_data('rules')
+    if not isinstance(rules, dict):
+        rules = {}
+    
+    # Check if sport already exists
+    sport_name = data['name']
+    if sport_name in rules:
+        return jsonify({'error': f'Rules for {sport_name} already exist. Use the update endpoint instead.'}), 400
+    
+    # Add new sport rule
+    rules[sport_name] = data['rules']
+    
+    # Save to database
+    sport = None
+    try:
+        with app.app_context():
+            # Check if sport already exists in database
+            sport = models.Sport.query.filter_by(name=sport_name).first()
+            if not sport:
+                sport = models.Sport(
+                    name=sport_name,
+                    icon=data.get('icon', ''),
+                    min_players=data.get('min_players', 1),
+                    rules=data['rules']
+                )
+                db.session.add(sport)
+                db.session.commit()
+            else:
+                sport.rules = data['rules']
+                sport.min_players = data.get('min_players', 1)
+                if 'icon' in data:
+                    sport.icon = data['icon']
+                db.session.commit()
+    except Exception as e:
+        logger.error(f"Error saving sport to database: {e}")
+        # Continue to save to JSON even if database fails
+    
+    # Write to data file as well (legacy support)
+    write_data('rules', rules)
+    
+    return jsonify({
+        'success': True, 
+        'message': f'Rules for {sport_name} added successfully',
+        'sport_id': sport.id if sport else None
+    })
 
 @app.route('/api/organizers', methods=['GET'])
 def get_organizers():
@@ -735,6 +881,242 @@ def get_custom_tournament(tournament_id):
     except Exception as e:
         logger.error(f"Error reading tournament file {file_path}: {e}")
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/teams/<int:team_id>', methods=['GET'])
+def get_team_details(team_id):
+    """API endpoint to get team details and registration status."""
+    try:
+        team = models.Team.query.get(team_id)
+        if not team:
+            return jsonify({"error": "Team not found"}), 404
+        
+        # Get players
+        players = [{"id": p.id, "name": p.name, "position": p.position, "jersey_number": p.jersey_number} 
+                  for p in team.players]
+        
+        # Get tournament registrations
+        registrations = [
+            {
+                "id": reg.id,
+                "tournament_id": reg.tournament_id,
+                "tournament_name": reg.tournament.name if reg.tournament else "Unknown Tournament",
+                "registration_date": reg.registration_date.isoformat(),
+                "status": reg.status,
+                "notes": reg.notes
+            }
+            for reg in team.tournament_registrations
+        ]
+        
+        # Get sport
+        sport = None
+        if team.sport:
+            sport = {
+                "id": team.sport.id,
+                "name": team.sport.name,
+                "icon": team.sport.icon,
+                "min_players": team.sport.min_players
+            }
+        
+        team_data = {
+            "id": team.id,
+            "name": team.name,
+            "captain": team.captain,
+            "contact": team.contact,
+            "email": team.email,
+            "sport": sport,
+            "registration_date": team.registration_date.isoformat(),
+            "approved": team.approved,
+            "players": players,
+            "tournament_registrations": registrations
+        }
+        
+        return jsonify(team_data)
+    except Exception as e:
+        logger.error(f"Error getting team details: {e}")
+        
+        # Fallback to JSON data
+        teams = read_data('teams')
+        for team in teams:
+            if team.get('id') == team_id:
+                return jsonify(team)
+        
+        return jsonify({"error": f"Team with ID {team_id} not found"}), 404
+
+@app.route('/api/registrations', methods=['GET'])
+def get_registrations():
+    """API endpoint to get team registrations for tournaments."""
+    try:
+        tournament_id = request.args.get('tournament_id')
+        
+        registrations = []
+        tournaments = []
+        
+        # Get tournament registrations from database
+        query = models.TournamentRegistration.query
+        
+        if tournament_id:
+            query = query.filter_by(tournament_id=tournament_id)
+        
+        reg_records = query.all()
+        
+        for reg in reg_records:
+            if reg.team and reg.tournament:
+                registration = {
+                    'id': reg.id,
+                    'tournament_id': reg.tournament_id,
+                    'tournament_name': reg.tournament.name,
+                    'team_id': reg.team_id,
+                    'team_name': reg.team.name,
+                    'captain': reg.team.captain,
+                    'contact': reg.team.contact,
+                    'email': reg.team.email,
+                    'registration_date': reg.registration_date.isoformat(),
+                    'status': reg.status,
+                    'notes': reg.notes,
+                    'players': [p.name for p in reg.team.players] if reg.team.players else []
+                }
+                registrations.append(registration)
+        
+        # Get all tournaments for filter
+        all_tournaments = models.Tournament.query.all()
+        tournaments = [
+            {
+                'id': t.id,
+                'name': t.name,
+                'sport': t.sport.name if t.sport else ''
+            }
+            for t in all_tournaments
+        ]
+        
+        return jsonify({
+            'success': True,
+            'registrations': registrations,
+            'tournaments': tournaments
+        })
+    except Exception as e:
+        logger.error(f"Error getting registrations: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/registrations/approve', methods=['POST'])
+def approve_registration():
+    """API endpoint to approve a team registration for a tournament."""
+    try:
+        data = request.json
+        registration_id = data.get('registration_id')
+        notes = data.get('notes', '')
+        
+        if not registration_id:
+            return jsonify({'error': 'Registration ID is required'}), 400
+        
+        # Get registration from database
+        registration = models.TournamentRegistration.query.get(registration_id)
+        
+        if not registration:
+            return jsonify({'error': 'Registration not found'}), 404
+        
+        # Update registration status
+        registration.status = 'approved'
+        registration.notes = notes
+        
+        # Also approve the team itself
+        if registration.team:
+            registration.team.approved = True
+        
+        db.session.commit()
+        
+        # Create notification
+        notification = models.Notification(
+            title=f"Team Registration Approved",
+            message=f"Your team '{registration.team.name}' has been approved for the tournament '{registration.tournament.name}'.",
+            type="success",
+            related_to="registration",
+            related_id=registration.id,
+            is_read=False
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Registration approved successfully',
+            'registration_id': registration.id
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error approving registration: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/registrations/reject', methods=['POST'])
+def reject_registration():
+    """API endpoint to reject a team registration for a tournament."""
+    try:
+        data = request.json
+        registration_id = data.get('registration_id')
+        reason = data.get('reason', 'No reason provided')
+        
+        if not registration_id:
+            return jsonify({'error': 'Registration ID is required'}), 400
+        
+        # Get registration from database
+        registration = models.TournamentRegistration.query.get(registration_id)
+        
+        if not registration:
+            return jsonify({'error': 'Registration not found'}), 404
+        
+        # Update registration status
+        registration.status = 'rejected'
+        registration.notes = reason
+        db.session.commit()
+        
+        # Create notification
+        notification = models.Notification(
+            title=f"Team Registration Rejected",
+            message=f"Your team '{registration.team.name}' registration for the tournament '{registration.tournament.name}' has been rejected. Reason: {reason}",
+            type="error",
+            related_to="registration",
+            related_id=registration.id,
+            is_read=False
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Registration rejected successfully',
+            'registration_id': registration.id
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error rejecting registration: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    """API endpoint to get notifications."""
+    try:
+        notifications = models.Notification.query.order_by(models.Notification.created_at.desc()).limit(10).all()
+        
+        notifications_data = [
+            {
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'type': notification.type,
+                'related_to': notification.related_to,
+                'related_id': notification.related_id,
+                'is_read': notification.is_read,
+                'created_at': notification.created_at.isoformat()
+            }
+            for notification in notifications
+        ]
+        
+        return jsonify({
+            'success': True,
+            'notifications': notifications_data
+        })
+    except Exception as e:
+        logger.error(f"Error getting notifications: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/scheduler/tournaments', methods=['POST'])
 def create_custom_tournament():
