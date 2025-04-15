@@ -2,9 +2,10 @@ import os
 import json
 import logging
 import re
+import functools
 from datetime import datetime, timedelta
 from pathlib import Path
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, flash
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -366,10 +367,49 @@ def index():
     """Render the main chatbot interface."""
     return render_template('index.html')
 
+@app.route('/register')
+def register_page():
+    """Render the team registration page."""
+    return render_template('register.html')
+
+# Login function decorator for admin routes
+def admin_login_required(f):
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Handle admin login."""
+    error = None
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # For a real application, you would use a proper authentication system
+        # In this simple example, we're using a hardcoded password as requested
+        if username and password == 'abcd1234':
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin'))
+        else:
+            error = 'Invalid credentials. Please try again.'
+    
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    """Log out the admin user."""
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('index'))
+
 @app.route('/admin')
+@admin_login_required
 def admin():
     """Render the admin interface."""
-    # In a production app, this would have proper authentication
     return render_template('admin.html')
 
 @app.route('/api/chat', methods=['POST'])
@@ -384,13 +424,52 @@ def chat():
     response = generate_chatbot_response(query)
     return jsonify({'response': response})
 
+@app.route('/api/sport-availability', methods=['GET'])
+def check_sport_availability():
+    """API endpoint to check if a sport has available tournaments."""
+    sport = request.args.get('sport')
+    
+    if not sport:
+        return jsonify({'error': 'No sport specified'}), 400
+    
+    tournaments = read_data('tournaments')
+    
+    # Check if there are active tournaments for this sport
+    available = any(
+        t.get('sport', '').lower() == sport.lower() and 
+        t.get('status', '') in ['upcoming', 'ongoing']
+        for t in tournaments
+    )
+    
+    return jsonify({'available': available, 'sport': sport})
+
+@app.route('/api/registration-status', methods=['GET'])
+def check_registration_status():
+    """API endpoint to check team registration status."""
+    team_name = request.args.get('team')
+    
+    if not team_name:
+        return jsonify({'error': 'No team name specified'}), 400
+    
+    teams = read_data('teams')
+    
+    # Find the team
+    for team in teams:
+        if team.get('name', '').lower() == team_name.lower():
+            # In a real app, this would be a proper status field
+            # For now we'll simulate with random statuses or a default
+            status = team.get('status', 'pending')
+            return jsonify({'found': True, 'status': status, 'team': team})
+    
+    return jsonify({'found': False})
+
 @app.route('/api/register', methods=['POST'])
 def register():
     """API endpoint for team/player registration."""
     data = request.json
     
     # Validate required fields
-    required_fields = ['name', 'contact', 'email', 'type']
+    required_fields = ['name', 'contact', 'email', 'type', 'sport']
     missing_fields = [field for field in required_fields if field not in data]
     
     if missing_fields:
@@ -410,7 +489,11 @@ def register():
             'contact': data['contact'],
             'email': data['email'],
             'sport': data.get('sport', ''),
+            'tournament_id': data.get('tournament_id', ''),
             'players': data.get('players', []),
+            'experience': data.get('experience', ''),
+            'special_requirements': data.get('special_requirements', ''),
+            'status': 'pending',  # Initial status is pending
             'registration_date': datetime.now().isoformat()
         }
         teams.append(team_data)
@@ -665,6 +748,7 @@ def scheduler_page():
     return render_template('scheduler.html')
     
 @app.route('/admin-scheduler', methods=['GET'])
+@admin_login_required
 def admin_scheduler_page():
     """Render the admin tournament scheduler page."""
     return render_template('admin-scheduler.html')

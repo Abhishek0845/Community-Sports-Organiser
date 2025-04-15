@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .registration-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: 50px auto;
+            max-width: 800px;
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            margin: -30px -30px 30px -30px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+        
+        .form-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-section-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .players-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .player-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .remove-player {
+            color: var(--danger-color);
+            cursor: pointer;
+        }
+        
+        .player-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .status-check-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .status-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body class="registration-body">
+    <div class="container">
+        <div class="registration-container">
+            <div class="form-header">
+                <h1><i class="fas fa-users"></i> Team Registration</h1>
+                <p>Register your team for community sports tournaments</p>
+            </div>
+            
+            <div id="registrationForm">
+                <!-- Team Information Section -->
+                <div class="form-section">
+                    <h3 class="form-section-title"><i class="fas fa-trophy"></i> Tournament & Team Information</h3>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="sportType" class="form-label">Sport Type *</label>
+                            <select class="form-control" id="sportType" required>
+                                <option value="">Select Sport</option>
+                                <option value="Cricket">Cricket</option>
+                                <option value="Football">Football</option>
+                                <option value="Volleyball">Volleyball</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Kabaddi">Kabaddi</option>
+                                <option value="Kho Kho">Kho Kho</option>
+                            </select>
+                            <div id="sportAvailability" class="mt-2"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="tournamentName" class="form-label">Tournament Name *</label>
+                            <select class="form-control" id="tournamentName" required disabled>
+                                <option value="">Select Tournament</option>
+                                <!-- Will be populated based on sport selection -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="teamName" class="form-label">Team Name *</label>
+                            <input type="text" class="form-control" id="teamName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="teamLogo" class="form-label">Team Logo</label>
+                            <input type="file" class="form-control" id="teamLogo">
+                            <small class="text-muted">Optional: Upload your team logo</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Captain Information Section -->
+                <div class="form-section">
+                    <h3 class="form-section-title"><i class="fas fa-user-tie"></i> Captain Information</h3>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="captainName" class="form-label">Captain Name *</label>
+                            <input type="text" class="form-control" id="captainName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="captainContact" class="form-label">Contact Number *</label>
+                            <input type="tel" class="form-control" id="captainContact" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="captainEmail" class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="captainEmail" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="captainAge" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="captainAge" min="15" max="60">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Players Information Section -->
+                <div class="form-section">
+                    <h3 class="form-section-title"><i class="fas fa-users"></i> Players Information</h3>
+                    <p class="text-muted mb-3">Add all players who will participate in the tournament</p>
+                    
+                    <div id="playersContainer" class="players-container">
+                        <div class="player-row">
+                            <div class="flex-grow-1">
+                                <input type="text" class="form-control" placeholder="Player name" required>
+                            </div>
+                            <div class="flex-grow-1">
+                                <input type="number" class="form-control" placeholder="Age" min="15" max="60">
+                            </div>
+                            <span class="remove-player"><i class="fas fa-times-circle"></i></span>
+                        </div>
+                        <div class="player-row">
+                            <div class="flex-grow-1">
+                                <input type="text" class="form-control" placeholder="Player name" required>
+                            </div>
+                            <div class="flex-grow-1">
+                                <input type="number" class="form-control" placeholder="Age" min="15" max="60">
+                            </div>
+                            <span class="remove-player"><i class="fas fa-times-circle"></i></span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="addPlayer" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-plus"></i> Add Player
+                    </button>
+                </div>
+                
+                <!-- Additional Information Section -->
+                <div class="form-section">
+                    <h3 class="form-section-title"><i class="fas fa-info-circle"></i> Additional Information</h3>
+                    
+                    <div class="mb-3">
+                        <label for="teamExperience" class="form-label">Previous Tournament Experience</label>
+                        <textarea class="form-control" id="teamExperience" rows="2" placeholder="Mention any previous tournaments your team has participated in"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="specialRequirements" class="form-label">Special Requirements</label>
+                        <textarea class="form-control" id="specialRequirements" rows="2" placeholder="Any special requirements or notes for the organizers"></textarea>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                        <label class="form-check-label" for="agreeTerms">
+                            I agree to the tournament rules and regulations
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                    <button type="button" id="submitRegistration" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Registration
+                    </button>
+                </div>
+                
+                <div id="successMessage" class="success-message">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h4>Registration Successful!</h4>
+                    <p>Your team registration has been submitted successfully. The tournament organizers will review your application and get back to you soon.</p>
+                    <p>Your registration details have been forwarded to the concerned authorities. Your match schedule will be visible in the upcoming matches section once approved. You'll also be notified via your contact information provided.</p>
+                </div>
+                
+                <div id="errorMessage" class="error-message">
+                    <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                    <h4>Registration Failed</h4>
+                    <p id="errorText">There was an error processing your registration. Please try again later.</p>
+                </div>
+            </div>
+            
+            <!-- Registration Status Check Section -->
+            <div class="status-check-container mt-4">
+                <h3 class="form-section-title"><i class="fas fa-search"></i> Check Registration Status</h3>
+                <p class="text-muted">Already registered? Check your team's registration status</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="statusTeamName" placeholder="Enter team name">
+                            <button class="btn btn-outline-secondary" type="button" id="checkStatus">
+                                <i class="fas fa-search"></i> Check
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="statusPending" class="status-result status-pending">
+                    <i class="fas fa-clock"></i> Your registration is <strong>pending review</strong>. Please check back later.
+                </div>
+                
+                <div id="statusApproved" class="status-result status-approved">
+                    <i class="fas fa-check-circle"></i> Your registration has been <strong>approved</strong>! Check the tournament schedule for your matches.
+                </div>
+                
+                <div id="statusRejected" class="status-result status-rejected">
+                    <i class="fas fa-times-circle"></i> Your registration has been <strong>rejected</strong>. Please contact the organizers for more information.
+                </div>
+                
+                <div id="statusNotFound" class="status-result text-muted">
+                    <i class="fas fa-question-circle"></i> No registration found with this team name. Please verify the name or register your team.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="developer-credit">
+        Developed by Abhishek Singh
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const sportTypeSelect = document.getElementById('sportType');
+            const tournamentNameSelect = document.getElementById('tournamentName');
+            const sportAvailability = document.getElementById('sportAvailability');
+            const playersContainer = document.getElementById('playersContainer');
+            const addPlayerBtn = document.getElementById('addPlayer');
+            const submitBtn = document.getElementById('submitRegistration');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const checkStatusBtn = document.getElementById('checkStatus');
+            const statusTeamName = document.getElementById('statusTeamName');
+            const statusPending = document.getElementById('statusPending');
+            const statusApproved = document.getElementById('statusApproved');
+            const statusRejected = document.getElementById('statusRejected');
+            const statusNotFound = document.getElementById('statusNotFound');
+            
+            // Handle sport type selection
+            sportTypeSelect.addEventListener('change', function() {
+                const selectedSport = this.value;
+                
+                if (!selectedSport) {
+                    tournamentNameSelect.disabled = true;
+                    tournamentNameSelect.innerHTML = '<option value="">Select Tournament</option>';
+                    sportAvailability.innerHTML = '';
+                    return;
+                }
+                
+                // Check if selected sport has tournaments
+                fetch('/api/sport-availability?sport=' + selectedSport)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.available) {
+                            sportAvailability.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${selectedSport} tournaments are available for registration</span>`;
+                            
+                            // Load tournaments for this sport
+                            fetch('/api/tournaments?sport=' + selectedSport)
+                                .then(response => response.json())
+                                .then(tournaments => {
+                                    tournamentNameSelect.innerHTML = '<option value="">Select Tournament</option>';
+                                    
+                                    tournaments.forEach(tournament => {
+                                        const option = document.createElement('option');
+                                        option.value = tournament.id;
+                                        option.textContent = tournament.name;
+                                        tournamentNameSelect.appendChild(option);
+                                    });
+                                    
+                                    tournamentNameSelect.disabled = false;
+                                });
+                        } else {
+                            sportAvailability.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle"></i> Sorry, no ${selectedSport} tournaments are currently scheduled</span>`;
+                            tournamentNameSelect.disabled = true;
+                            tournamentNameSelect.innerHTML = '<option value="">Select Tournament</option>';
+                        }
+                    });
+            });
+            
+            // Add player functionality
+            addPlayerBtn.addEventListener('click', function() {
+                const playerRow = document.createElement('div');
+                playerRow.className = 'player-row';
+                playerRow.innerHTML = `
+                    <div class="flex-grow-1">
+                        <input type="text" class="form-control" placeholder="Player name" required>
+                    </div>
+                    <div class="flex-grow-1">
+                        <input type="number" class="form-control" placeholder="Age" min="15" max="60">
+                    </div>
+                    <span class="remove-player"><i class="fas fa-times-circle"></i></span>
+                `;
+                playersContainer.appendChild(playerRow);
+                
+                // Add event listener to the new remove button
+                playerRow.querySelector('.remove-player').addEventListener('click', function() {
+                    if (playersContainer.children.length > 2) {
+                        this.parentElement.remove();
+                    } else {
+                        alert('You need at least two players for a team.');
+                    }
+                });
+            });
+            
+            // Initialize remove player buttons
+            document.querySelectorAll('.remove-player').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (playersContainer.children.length > 2) {
+                        this.parentElement.remove();
+                    } else {
+                        alert('You need at least two players for a team.');
+                    }
+                });
+            });
+            
+            // Submit registration
+            submitBtn.addEventListener('click', function() {
+                // Validate required fields
+                const requiredFields = document.querySelectorAll('#registrationForm input[required], #registrationForm select[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (!document.getElementById('agreeTerms').checked) {
+                    document.getElementById('agreeTerms').classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    document.getElementById('agreeTerms').classList.remove('is-invalid');
+                }
+                
+                if (!isValid) {
+                    errorText.innerText = 'Please fill in all required fields and accept the terms.';
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                    return;
+                }
+                
+                // Collect players data
+                const players = [];
+                playersContainer.querySelectorAll('.player-row').forEach(row => {
+                    const nameInput = row.querySelector('input[placeholder="Player name"]');
+                    const ageInput = row.querySelector('input[placeholder="Age"]');
+                    
+                    if (nameInput.value) {
+                        players.push({
+                            name: nameInput.value,
+                            age: ageInput.value || ''
+                        });
+                    }
+                });
+                
+                // Prepare registration data
+                const registrationData = {
+                    type: 'team',
+                    sport: sportTypeSelect.value,
+                    tournament_id: tournamentNameSelect.value,
+                    name: document.getElementById('teamName').value,
+                    captain: document.getElementById('captainName').value,
+                    contact: document.getElementById('captainContact').value,
+                    email: document.getElementById('captainEmail').value,
+                    experience: document.getElementById('teamExperience').value,
+                    special_requirements: document.getElementById('specialRequirements').value,
+                    players: players
+                };
+                
+                // Send registration data
+                fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(registrationData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        errorText.innerText = data.error;
+                        errorMessage.style.display = 'block';
+                        successMessage.style.display = 'none';
+                    } else if (data.success) {
+                        successMessage.style.display = 'block';
+                        errorMessage.style.display = 'none';
+                        
+                        // Reset form
+                        document.getElementById('teamName').value = '';
+                        document.getElementById('captainName').value = '';
+                        document.getElementById('captainContact').value = '';
+                        document.getElementById('captainEmail').value = '';
+                        document.getElementById('captainAge').value = '';
+                        document.getElementById('teamExperience').value = '';
+                        document.getElementById('specialRequirements').value = '';
+                        document.getElementById('agreeTerms').checked = false;
+                        
+                        // Reset players
+                        while (playersContainer.children.length > 2) {
+                            playersContainer.removeChild(playersContainer.lastChild);
+                        }
+                        playersContainer.querySelectorAll('input').forEach(input => input.value = '');
+                        
+                        // Reset sport and tournament
+                        sportTypeSelect.value = '';
+                        tournamentNameSelect.innerHTML = '<option value="">Select Tournament</option>';
+                        tournamentNameSelect.disabled = true;
+                        sportAvailability.innerHTML = '';
+                        
+                        // Scroll to success message
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorText.innerText = 'There was an error submitting your registration. Please try again later.';
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                });
+            });
+            
+            // Check registration status
+            checkStatusBtn.addEventListener('click', function() {
+                const teamName = statusTeamName.value.trim();
+                
+                if (!teamName) {
+                    alert('Please enter a team name to check status');
+                    return;
+                }
+                
+                fetch('/api/registration-status?team=' + encodeURIComponent(teamName))
+                    .then(response => response.json())
+                    .then(data => {
+                        // Hide all status messages first
+                        statusPending.style.display = 'none';
+                        statusApproved.style.display = 'none';
+                        statusRejected.style.display = 'none';
+                        statusNotFound.style.display = 'none';
+                        
+                        if (!data.found) {
+                            statusNotFound.style.display = 'block';
+                        } else {
+                            if (data.status === 'pending') {
+                                statusPending.style.display = 'block';
+                            } else if (data.status === 'approved') {
+                                statusApproved.style.display = 'block';
+                            } else if (data.status === 'rejected') {
+                                statusRejected.style.display = 'block';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error checking registration status. Please try again later.');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
