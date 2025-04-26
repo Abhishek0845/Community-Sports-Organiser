@@ -107,39 +107,27 @@ def is_sports_related(query):
     return False
 
 def classify_intent(query):
-    """Classify the intent of the user query."""
     query = query.lower()
     
-    # Check if it's off-topic first
-    if not is_sports_related(query):
-        return "off_topic"
-    
-    # Registration intent
-    if any(word in query for word in ["register", "join", "signup", "sign up", "participate"]):
+    if any(word in query for word in ["register", "sign up"]):
         return "registration"
-    
-    # Schedule intent
-    if any(word in query for word in ["schedule", "when", "time", "date", "calendar", "upcoming"]):
+    elif any(word in query for word in ["schedule", "when", "date", "time"]):
         return "schedule"
-    
-    # Results intent
-    if any(word in query for word in ["result", "score", "winner", "won", "lose", "lost", "win"]):
+    elif any(word in query for word in ["result", "score", "winner"]):
         return "results"
-    
-    # Rules intent
-    if any(word in query for word in ["rule", "regulation", "how to play", "how do you play"]):
+    elif any(word in query for word in ["rule", "how to play"]):
         return "rules"
-    
-    # Contact intent
-    if any(word in query for word in ["contact", "organizer", "call", "email", "phone", "reach"]):
+    elif any(word in query for word in ["contact", "phone", "email"]):
         return "contact"
-    
-    # Venue intent
-    if any(word in query for word in ["where", "venue", "location", "place", "ground", "stadium"]):
+    elif any(word in query for word in ["venue", "location", "place"]):
         return "venue"
-    
-    # Fallback to generic
-    return "general"
+    elif any(word in query for word in ["organize", "plan", "create tournament"]):
+        return "organize"
+    elif any(word in query for word in ["hi", "hello", "help", "available"]):
+        return "general"
+    else:
+        return "off_topic"
+
 
 def get_sport_from_query(query):
     """Extract the sport from the query if mentioned."""
@@ -322,45 +310,60 @@ def handle_general_intent():
     response += "\nWhat would you like to know about?"
     return response
 
+def handle_organize_tournament_intent(query):
+    return (
+        "Sure! Let's organize a tournament 🎉\n"
+        "Please tell me:\n"
+        "1. Sport name\n"
+        "2. Date (e.g., May 10)\n"
+        "3. Location"
+    )
+
 def generate_chatbot_response(query):
-    """Generate a response to the user query."""
-    # Check for sport-only queries first (like just "basketball" or "tennis")
+    """Improved response generation for chatbot queries."""
+    query = query.strip().lower()
     sport = get_sport_from_query(query)
-    
-    # If query is just a sport name
-    if sport and len(query.strip().split()) <= 2:  # Just the sport name or "about sport"
-        if is_sport_in_tournaments(sport):
-            return f"We have {sport} tournaments scheduled. What would you like to know about {sport}? You can ask about schedules, rules, venue, or registration."
-        else:
-            return f"Sorry, we don't have any {sport} tournaments scheduled this year. We currently offer: Cricket, Football, Volleyball, Badminton, and Kabaddi tournaments."
-    
-    # Regular intent classification
     intent = classify_intent(query)
-    
-    # Handle off-topic queries
+
+    # Handle vague single-word sport queries
+    if sport and len(query.split()) <= 2:
+        if is_sport_in_tournaments(sport):
+            return f"Yes, we have {sport} tournaments this year! 😊 You can ask me about schedules, registration, rules, venues, or results."
+        else:
+            return f"Unfortunately, we don't have any {sport} tournaments scheduled right now. Currently available sports are: Cricket, Football, Volleyball, Badminton, and Kabaddi."
+
+    # Handle invalid queries
+    if not query:
+        return "Could you please type your question? I'm here to help with tournament info!"
+
+    # Handle off-topic
     if intent == "off_topic":
-        return "I can only help with community sports tournament-related queries. Please ask about registrations, schedules, results, rules, or contact information for our tournaments."
-    
-    # Handle sport-specific but not in our tournaments
+        return "Hmm, I specialize in community sports tournaments 🏆. Try asking about schedules, rules, or registrations."
+
+    # Handle sport-specific but not offered
     if sport and not is_sport_in_tournaments(sport):
-        if any(word in query.lower() for word in ["tournament", "match", "schedule", "when", "where"]):
-            return f"Sorry, we don't have any {sport} tournaments scheduled this year. We currently offer: Cricket, Football, Volleyball, Badminton, and Kabaddi tournaments."
-    
+        if any(word in query for word in ["tournament", "match", "schedule", "when", "where"]):
+            return f"Currently, we don't have any {sport} tournaments. Check back later or ask about another sport."
+
+    # Intent handlers
     intent_handlers = {
         "registration": handle_registration_intent,
         "schedule": handle_schedule_intent,
         "results": handle_results_intent,
         "rules": handle_rules_intent,
+        "organize": handle_organize_tournament_intent,
         "contact": handle_contact_intent,
         "venue": handle_venue_intent,
         "general": lambda _: handle_general_intent()
     }
-    
+
     handler = intent_handlers.get(intent)
     if handler:
         return handler(query)
-    else:
-        return handle_general_intent()
+
+    # Fallback
+    return "I'm not quite sure how to help with that 🤔. You can ask me things like: 'How do I register for cricket?' or 'What's the football schedule?'"
+
 
 # Routes
 @app.route('/')

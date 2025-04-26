@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -17,52 +19,39 @@
                     <h1><i class="fas fa-trophy"></i> Community Sports Tournament Organizer</h1>
                     <p>Ask me about tournaments, schedules, registrations, and more!</p>
                     <div class="navigation-links">
-                        <a href="/register" class="btn btn-sm btn-primary"><i class="fas fa-user-plus"></i> Register Team</a>
-                        <a href="/scheduler" class="btn btn-sm btn-outline-light"><i class="fas fa-calendar-alt"></i> Tournament Scheduler</a>
-                        <a href="/admin" class="btn btn-sm btn-outline-light"><i class="fas fa-cogs"></i> Admin Panel</a>
+                        <a href="/register" class="btn btn-sm btn-primary"><i class="fas fa-user-plus"></i> Register
+                            Team</a>
+                        <a href="/scheduler" class="btn btn-sm btn-outline-light"><i class="fas fa-calendar-alt"></i>
+                            Tournament Scheduler</a>
+                        <a href="/admin" class="btn btn-sm btn-outline-light"><i class="fas fa-cogs"></i> Admin
+                            Panel</a>
                     </div>
                 </div>
-                
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <p>👋 Welcome to the Community Sports Tournament Organizer! How can I help you today?</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chat-input">
-                    <form id="chat-form">
-                        <div class="input-group">
-                            <input type="text" id="user-input" class="form-control" placeholder="Ask about tournaments, schedules, registrations..." required>
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+
+                <iframe src="https://www.chatbase.co/chatbot-iframe/1lWMHyz9d2w7buDxmVu6l" width="100%"
+                    style="height: 82vh; min-height: 500px; border: none;" frameborder="0"></iframe>
             </div>
-            
+
             <!-- Info Panel (Right Pane) -->
             <div class="col-md-4 info-panel">
                 <div class="info-header">
                     <h2><i class="fas fa-info-circle"></i> Tournament Info</h2>
                 </div>
-                
+
                 <div class="info-section">
                     <h3><i class="fas fa-calendar-alt"></i> Upcoming Matches</h3>
                     <div id="upcoming-matches">
                         <p class="loading">Loading matches...</p>
                     </div>
                 </div>
-                
+
                 <div class="info-section">
                     <h3><i class="fas fa-medal"></i> Latest Results</h3>
                     <div id="latest-results">
                         <p class="loading">Loading results...</p>
                     </div>
                 </div>
-                
+
                 <div class="info-section">
                     <h3><i class="fas fa-users"></i> Quick Links</h3>
                     <div class="quick-links">
@@ -72,7 +61,8 @@
                         <button class="btn btn-outline-primary quick-query" data-query="What's the schedule?">
                             Tournament Schedule
                         </button>
-                        <button class="btn btn-outline-primary quick-query" data-query="What are the rules for cricket?">
+                        <button class="btn btn-outline-primary quick-query"
+                            data-query="What are the rules for cricket?">
                             Sport Rules
                         </button>
                         <button class="btn btn-outline-primary quick-query" data-query="Who are the organizers?">
@@ -80,7 +70,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="info-section sports-icons">
                     <div class="sport-icon" data-sport="Cricket">
                         <i class="fas fa-baseball-ball"></i>
@@ -110,12 +100,13 @@
             </div>
         </div>
     </div>
-    
+
     <div class="developer-credit">
-        Developed by Abhishek Singh
+        Developed by Abhishek Singh & Mahesh Babu
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
+
 </html>
